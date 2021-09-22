@@ -12,7 +12,7 @@ struct Cells<T> {
 }
 
 impl<T> Cells<T> {
-    pub fn new(bounds: Box2D<f64>, capacity: i8) -> Cells<T> {
+    pub fn new(bounds: Box2D<f64>, capacity: usize) -> Cells<T> {
         let mid_x = bounds.min.x + ((bounds.max.x - bounds.min.x) / 2.);
         let mid_y = bounds.min.y + ((bounds.max.y - bounds.min.y) / 2.);
 
@@ -27,13 +27,13 @@ impl<T> Cells<T> {
 
 pub struct QuadTreeNode<T> {
     bounds      : Box2D<f64>,
-    capacity    : i8,
+    capacity    : usize,
     cells       : Option<Cells<T>>,
     data        : Vec<T>
 }
 
 impl<T> QuadTreeNode<T> {
-    pub fn new(x1: f64, y1: f64, x2: f64, y2: f64, capacity: i8) -> QuadTreeNode<T> {
+    pub fn new(x1: f64, y1: f64, x2: f64, y2: f64, capacity: usize) -> QuadTreeNode<T> {
         QuadTreeNode {
             bounds: Box2D { min: Point2D {
                 x: x1,
@@ -60,11 +60,20 @@ impl<T> QuadTreeNode<T> {
 
     pub fn add(&mut self, item: T) {
         self.data.push(item);
+
+        if self.data.len() > self.capacity {
+            subdivide(self);
+            distribute(self);
+        }
     }
 }
 
 pub fn subdivide<T>(instance: &mut QuadTreeNode<T>) {
     instance.cells = Some(Cells::new(instance.bounds, instance.capacity));
+}
+
+pub fn distribute<T>(_instance: &mut QuadTreeNode<T>) {
+    println!("todo");
 }
 
 #[cfg(test)]
@@ -127,5 +136,20 @@ mod tests {
         assert_eq!(instance.data.len(), 1);
         assert_eq!(instance.data[0].x, 10.);
         assert_eq!(instance.data[0].y, 11.);
+    }
+
+    #[test]
+    fn add_to_subdivide() {
+        let mut instance = QuadTreeNode::<Point>::new(-100., -100., 100., 100., 4);
+        instance.add(Point::new(-90., 90.));
+        instance.add(Point::new(90., 90.));
+        instance.add(Point::new(-80., 80.));
+        instance.add(Point::new(-70., 70.));
+
+        assert_eq!(instance.has_children(), false);
+
+        instance.add(Point::new(10., 10.));
+
+        assert_eq!(instance.has_children(), true);
     }
 }
