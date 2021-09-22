@@ -4,8 +4,6 @@
 
 use euclid::default::{Box2D, Point2D};
 
-type Point = Point2D<f64>;
-
 struct Cells<T> {
     top_left        : Box<QuadTreeNode<T>>,
     top_right       : Box<QuadTreeNode<T>>,
@@ -71,8 +69,11 @@ pub fn subdivide<T>(instance: &mut QuadTreeNode<T>) {
 
 #[cfg(test)]
 mod tests {
-    use crate::node::{QuadTreeNode, subdivide, Point};
+    use crate::node::{QuadTreeNode, subdivide};
     use std::borrow::Borrow;
+    use euclid::default::Point2D;
+
+    type Point = Point2D<f64>;
 
     #[test]
     fn create_test() {
@@ -121,8 +122,10 @@ mod tests {
     #[test]
     fn add_test() {
         let mut instance = QuadTreeNode::<Point>::new(-110., -120., 110., 120., 4);
-        instance.add(Point::new(10., 10.));
+        instance.add(Point::new(10., 11.));
 
         assert_eq!(instance.data.len(), 1);
+        assert_eq!(instance.data[0].x, 10.);
+        assert_eq!(instance.data[0].y, 11.);
     }
 }
