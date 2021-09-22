@@ -4,15 +4,17 @@
 
 use euclid::default::{Box2D, Point2D};
 
-struct Cells {
-    top_left        : Box<QuadTreeNode>,
-    top_right       : Box<QuadTreeNode>,
-    bottom_left     : Box<QuadTreeNode>,
-    bottom_right    : Box<QuadTreeNode>,
+type Point = Point2D<f64>;
+
+struct Cells<T> {
+    top_left        : Box<QuadTreeNode<T>>,
+    top_right       : Box<QuadTreeNode<T>>,
+    bottom_left     : Box<QuadTreeNode<T>>,
+    bottom_right    : Box<QuadTreeNode<T>>,
 }
 
-impl Cells {
-    pub fn new(bounds: Box2D<f64>, capacity: i8) -> Cells {
+impl<T> Cells<T> {
+    pub fn new(bounds: Box2D<f64>, capacity: i8) -> Cells<T> {
         let mid_x = bounds.min.x + ((bounds.max.x - bounds.min.x) / 2.);
         let mid_y = bounds.min.y + ((bounds.max.y - bounds.min.y) / 2.);
 
@@ -25,14 +27,15 @@ impl Cells {
     }
 }
 
-pub struct QuadTreeNode {
+pub struct QuadTreeNode<T> {
     bounds      : Box2D<f64>,
     capacity    : i8,
-    cells       : Option<Cells>
+    cells       : Option<Cells<T>>,
+    data        : Vec<T>
 }
 
-impl QuadTreeNode {
-    pub fn new(x1: f64, y1: f64, x2: f64, y2: f64, capacity: i8) -> QuadTreeNode {
+impl<T> QuadTreeNode<T> {
+    pub fn new(x1: f64, y1: f64, x2: f64, y2: f64, capacity: i8) -> QuadTreeNode<T> {
         QuadTreeNode {
             bounds: Box2D { min: Point2D {
                 x: x1,
@@ -45,7 +48,8 @@ impl QuadTreeNode {
             } },
 
             capacity,
-            cells: None
+            cells: None,
+            data: vec![]
         }
     }
 
@@ -56,22 +60,23 @@ impl QuadTreeNode {
         }
     }
 
-    // pub fn add() {
-    // }
+    pub fn add(&mut self, item: T) {
+        self.data.push(item);
+    }
 }
 
-pub fn subdivide(instance: &mut QuadTreeNode) {
+pub fn subdivide<T>(instance: &mut QuadTreeNode<T>) {
     instance.cells = Some(Cells::new(instance.bounds, instance.capacity));
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::node::{QuadTreeNode, subdivide};
+    use crate::node::{QuadTreeNode, subdivide, Point};
     use std::borrow::Borrow;
 
     #[test]
     fn create_test() {
-        let instance = QuadTreeNode::new(-110., -120., 110., 120., 4);
+        let instance = QuadTreeNode::<Point>::new(-110., -120., 110., 120., 4);
         assert_eq!(instance.bounds.min.x, -110.);
         assert_eq!(instance.bounds.min.y, -120.);
         assert_eq!(instance.bounds.max.x, 110.);
@@ -82,7 +87,7 @@ mod tests {
 
     #[test]
     fn subdivide_test() {
-        let mut instance = QuadTreeNode::new(-100., -100., 100., 100., 4);
+        let mut instance = QuadTreeNode::<Point>::new(-100., -100., 100., 100., 4);
         subdivide(&mut instance);
 
         assert_eq!(instance.has_children(), true);
@@ -111,5 +116,13 @@ mod tests {
         assert_eq!(bottom_right.min.y, 0.);
         assert_eq!(bottom_right.max.x, 100.);
         assert_eq!(bottom_right.max.y, 100.);
+    }
+
+    #[test]
+    fn add_test() {
+        let mut instance = QuadTreeNode::<Point>::new(-110., -120., 110., 120., 4);
+        instance.add(Point::new(10., 10.));
+
+        assert_eq!(instance.data.len(), 1);
     }
 }
