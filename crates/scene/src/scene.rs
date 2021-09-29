@@ -1,5 +1,8 @@
 use crate::cell::Cell;
-use euclid::Point3D;
+use euclid::{Point3D, Box3D};
+
+type Point = Point3D<f64, f64>;
+type Box = Box3D<f64, f64>;
 
 /// Scene management
 /// Scene manages:
@@ -13,6 +16,10 @@ pub struct Scene {
     next_id: i64,
     capacity: i8,
     cell: Cell
+}
+
+trait Add<T> {
+    fn add(&mut self, coord: T) -> i64;
 }
 
 impl Scene {
@@ -33,17 +40,26 @@ impl Scene {
         self.capacity = capacity;
         self
     }
-    
-    /// Add a item to the scene
-    pub fn add(&mut self) -> i64 {
-        let id = self.next_id;
-        self.next_id = id + 1;
-        return id;
-    }
 
     /// Remove from the scene an item with the id value provided
     pub fn remove(&mut self, _id: i64) -> bool {
         true
+    }
+}
+
+impl Add<Point> for Scene {
+    fn add(&mut self, _coord: Point) -> i64 {
+        let id = self.next_id;
+        self.next_id = id + 1;
+        return id;
+    }
+}
+
+impl Add<Box> for Scene {
+    fn add(&mut self, _coord: Box) -> i64 {
+        let id = self.next_id;
+        self.next_id = id + 1;
+        return id;
     }
 }
 
@@ -72,10 +88,18 @@ mod test {
     }
 
     #[test]
-    fn scene_add_test() {
+    fn scene_add_point_test() {
         let mut scene = Scene::new(-50., -50., -50., 100., 100., 100.);
-        let id = scene.add();
+        let id = scene.add(Point::new(0., 0., 0.));
         assert_eq!(id, 0);
+        assert_eq!(scene.next_id, 1);
+    }
+
+    #[test]
+    fn scene_add_box_test() {
+        let mut scene = Scene::new(-50., -50., -50., 100., 100., 100.);
+        let item = scene.add(Box::new(Point::new(0., 0., 0.), Point::new(10., 10., 0.)));
+        assert_eq!(item, 0);
         assert_eq!(scene.next_id, 1);
     }
 
