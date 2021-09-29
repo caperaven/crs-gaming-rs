@@ -24,3 +24,24 @@ impl Cell {
         }
     }
 }
+
+#[cfg(test)]
+mod test {
+    use super::euclid::Point3D;
+    use crate::cell::Cell;
+
+    #[test]
+    fn cell_create_text() {
+        let p1 = Point3D::new(-50., -50., -50.);
+        let p2 = Point3D::new(50., 50., 50.);
+        let cell = Cell::new(p1, p2);
+
+        assert_eq!(cell.has_cells(), false);
+        assert_eq!(cell.area.min.x, -50.);
+        assert_eq!(cell.area.min.y, -50.);
+        assert_eq!(cell.area.min.z, -50.);
+        assert_eq!(cell.area.max.x, 50.);
+        assert_eq!(cell.area.max.y, 50.);
+        assert_eq!(cell.area.max.z, 50.);
+    }
+}
