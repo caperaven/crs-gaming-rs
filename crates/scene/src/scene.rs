@@ -11,6 +11,7 @@ use euclid::Point3D;
 /// This is just the scene data and does not manage the rendering
 pub struct Scene {
     next_id: i64,
+    capacity: i8,
     cell: Cell
 }
 
@@ -22,8 +23,15 @@ impl Scene {
 
         Scene {
             next_id: 0,
+            capacity: 10,
             cell: Cell::new(p1, p2)
         }
+    }
+
+    /// Set the capacity for the cells of the scene
+    pub fn with_capacity(mut self, capacity: i8) -> Scene {
+        self.capacity = capacity;
+        self
     }
     
     /// Add a item to the scene
@@ -44,7 +52,7 @@ mod test {
     use crate::scene::*;
 
     #[test]
-    fn scene_constructor() {
+    fn scene_constructor_test() {
         let scene = Scene::new(-50., -50., -50., 100., 100., 100.);
         assert_eq!(scene.next_id, 0);
         assert_eq!(scene.cell.area.min.x, -50.);
@@ -53,11 +61,18 @@ mod test {
         assert_eq!(scene.cell.area.max.x, 50.);
         assert_eq!(scene.cell.area.max.y, 50.);
         assert_eq!(scene.cell.area.max.z, 50.);
+        assert_eq!(scene.capacity, 10);
         assert_eq!(scene.cell.has_cells(), false);
     }
 
     #[test]
-    fn scene_add() {
+    fn with_capacity_test() {
+        let scene = Scene::new(-50., -50., -50., 100., 100., 100.).with_capacity(8);
+        assert_eq!(scene.capacity, 8)
+    }
+
+    #[test]
+    fn scene_add_test() {
         let mut scene = Scene::new(-50., -50., -50., 100., 100., 100.);
         let id = scene.add();
         assert_eq!(id, 0);
@@ -65,7 +80,7 @@ mod test {
     }
 
     #[test]
-    fn scene_remove() {
+    fn scene_remove_test() {
         let mut scene = Scene::new(-50., -50., -50., 100., 100., 100.);
         let success = scene.remove(1);
         assert_eq!(success, true);
