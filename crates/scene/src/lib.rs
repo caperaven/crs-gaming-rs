@@ -1,4 +1,5 @@
-mod node;
+mod scene;
+mod cell;
 
 #[cfg(test)]
 mod tests {
