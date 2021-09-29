@@ -47,6 +47,13 @@ mod test {
     fn scene_constructor() {
         let scene = Scene::new(-50., -50., -50., 100., 100., 100.);
         assert_eq!(scene.next_id, 0);
+        assert_eq!(scene.cell.area.min.x, -50.);
+        assert_eq!(scene.cell.area.min.y, -50.);
+        assert_eq!(scene.cell.area.min.z, -50.);
+        assert_eq!(scene.cell.area.max.x, 50.);
+        assert_eq!(scene.cell.area.max.y, 50.);
+        assert_eq!(scene.cell.area.max.z, 50.);
+        assert_eq!(scene.cell.has_cells(), false);
     }
 
     #[test]

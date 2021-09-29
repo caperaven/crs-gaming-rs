@@ -5,8 +5,8 @@ use euclid::{Box3D, Point3D};
 type Cells = Option<Box<Cell>>; 
 
 pub struct Cell {
-    area: Box3D<f64, f64>,
-    cells: Cells
+    pub area: Box3D<f64, f64>,
+    pub cells: Cells
 }
 
 impl Cell {
