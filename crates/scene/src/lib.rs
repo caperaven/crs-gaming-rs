@@ -1,5 +1,10 @@
-mod scene;
 mod cell;
+mod scene;
+
+pub enum DivisionType {
+    Quadtree,
+    Octree
+}
 
 #[cfg(test)]
 mod tests {

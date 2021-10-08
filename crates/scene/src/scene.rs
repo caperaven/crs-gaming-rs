@@ -1,112 +1,48 @@
+use crate::DivisionType;
 use crate::cell::Cell;
-use euclid::{Point3D, Box3D};
 
-type Point = Point3D<f64, f64>;
-type Box = Box3D<f64, f64>;
-
-/// Scene management
-/// Scene manages:
-/// 1. What items make up the scene
-/// 2. What items are visible
-/// 3. Queries to support hit test detection features
-///
-/// It has a build in octree for object queries
-/// This is just the scene data and does not manage the rendering
 pub struct Scene {
-    next_id: i64,
-    capacity: i8,
-    cell: Cell
-}
-
-trait Add<T> {
-    fn add(&mut self, coord: T) -> i64;
+    division_type: DivisionType,
+    cells: Vec<Cell>
 }
 
 impl Scene {
-    /// Create a new instance of scene
-    pub fn new(x: f64, y: f64, z: f64, width: f64, height: f64, depth: f64) -> Scene {
-        let p1 = Point3D::new(x, y, z);
-        let p2 = Point3D::new(x + width, y + height, z + depth);
-
+    pub fn new(division_type: DivisionType) -> Scene {
         Scene {
-            next_id: 0,
-            capacity: 10,
-            cell: Cell::new(p1, p2)
+            division_type,
+            cells: vec![]
         }
     }
 
-    /// Set the capacity for the cells of the scene
-    pub fn with_capacity(mut self, capacity: i8) -> Scene {
-        self.capacity = capacity;
-        self
-    }
-
-    /// Remove from the scene an item with the id value provided
-    pub fn remove(&mut self, _id: i64) -> bool {
-        true
-    }
-}
-
-impl Add<Point> for Scene {
-    fn add(&mut self, _coord: Point) -> i64 {
-        let id = self.next_id;
-        self.next_id = id + 1;
-        return id;
+    pub fn add(&self) {
+        match self.division_type {
+            DivisionType::Quadtree => {
+                sub_divide_quadtree(self)
+            }
+            DivisionType::Octree => {
+                sub_divide_octree(self);
+            }
+        }
     }
 }
 
-impl Add<Box> for Scene {
-    fn add(&mut self, _coord: Box) -> i64 {
-        let id = self.next_id;
-        self.next_id = id + 1;
-        return id;
-    }
+fn sub_divide_quadtree(scene: &Scene) {
+
+}
+
+fn sub_divide_octree(scene: &Scene) {
+
 }
 
 #[cfg(test)]
-mod test {
-    use crate::scene::*;
+mod tests {
+    use crate::scene::Scene;
+    use crate::DivisionType;
 
     #[test]
-    fn scene_constructor_test() {
-        let scene = Scene::new(-50., -50., -50., 100., 100., 100.);
-        assert_eq!(scene.next_id, 0);
-        assert_eq!(scene.cell.area.min.x, -50.);
-        assert_eq!(scene.cell.area.min.y, -50.);
-        assert_eq!(scene.cell.area.min.z, -50.);
-        assert_eq!(scene.cell.area.max.x, 50.);
-        assert_eq!(scene.cell.area.max.y, 50.);
-        assert_eq!(scene.cell.area.max.z, 50.);
-        assert_eq!(scene.capacity, 10);
-        assert_eq!(scene.cell.has_cells(), false);
-    }
+    fn scene_create_test() {
+        let scene = Scene::new(DivisionType::Octree);
 
-    #[test]
-    fn with_capacity_test() {
-        let scene = Scene::new(-50., -50., -50., 100., 100., 100.).with_capacity(8);
-        assert_eq!(scene.capacity, 8)
-    }
-
-    #[test]
-    fn scene_add_point_test() {
-        let mut scene = Scene::new(-50., -50., -50., 100., 100., 100.);
-        let id = scene.add(Point::new(0., 0., 0.));
-        assert_eq!(id, 0);
-        assert_eq!(scene.next_id, 1);
-    }
-
-    #[test]
-    fn scene_add_box_test() {
-        let mut scene = Scene::new(-50., -50., -50., 100., 100., 100.);
-        let item = scene.add(Box::new(Point::new(0., 0., 0.), Point::new(10., 10., 0.)));
-        assert_eq!(item, 0);
-        assert_eq!(scene.next_id, 1);
-    }
-
-    #[test]
-    fn scene_remove_test() {
-        let mut scene = Scene::new(-50., -50., -50., 100., 100., 100.);
-        let success = scene.remove(1);
-        assert_eq!(success, true);
+        assert_eq!(true, true);
     }
 }
