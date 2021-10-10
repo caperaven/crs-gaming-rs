@@ -7,3 +7,4 @@ edition = "2018"
 
 [dependencies]
 scene = { version = "0.1.0", path = "./crates/scene" }
+crafting = {version = "0.1.0", path = "./crates/crafting"}
